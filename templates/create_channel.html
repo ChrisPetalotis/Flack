@@ -3,12 +3,22 @@
 {% block script %}
 <script>
 	if (!localStorage.getItem('channels'))
-		localStorage.setItem('channels', [])
+		localStorage.setItem('channels', {})
 	console.log("STARTED")
 	document.addEventListener('DOMContentLoaded', () => {
-			console.log('loaded')
-		document.querySelector("#channelNameForm").onsubmit = () => {
+		// disable the submit button when first loading the page
+		document.querySelector('[type=submit]').disabled = true;
 
+		document.querySelector('#channelName').onkeyup = () => {
+			// disable sumbit if user did not type anything and enable if there is something typed in the input field
+			if (document.querySelector('#channelName').value.length > 0)
+				document.querySelector('[type=submit]').disabled = false
+			else
+				document.querySelector('[type=submit]').disabled = true
+		}
+		console.log("about to submit")
+		document.querySelector("#channelNameForm").onsubmit = () => {
+			console.log("FORM SUBMITTED")
 			// get the channel name the user submited
 			const channel = document.querySelector("#channelName").value;
 			// store this channel name is localStorage
@@ -24,10 +34,11 @@
 {% endblock%}
 
 {% block main %}
-	<form action=" {{ url_for('create_channel') }}" method="post" id="channelNameForm">
+	<form action="{{ url_for('create_channel') }}" method="post" id="channelNameForm">
 		<div class="form-group">
-			<input type="input" name='channelName' value="" id="channelName" placeholder="Name of your channel" autocomplete="off"></input>
-			<button type="submit">Create channel</button>
+			<label for='channelName' class="">Select the name of your new channel: </label>
+			<input type="text" name='channelName' value="" id="channelName" placeholder="Name of your channel" autocomplete="off"></input>
+			<button type="submit" class='btn btn-primary'>Create channel</button>
 		</div>
 	</form>
 

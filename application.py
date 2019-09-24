@@ -51,7 +51,7 @@ def create_channel():
 		# get the channel name the user typed in
 		channelName = request.form.get("channelName")
 		# make sure the user typed in a name for a new channel
-		if not channelName:
+		if not re.search('[a-zA-Z]',channelName):
 			return redirect(url_for("create_channel"))
 		# make sure the channelName does not already exist
 		if channelName in channels:
@@ -59,8 +59,9 @@ def create_channel():
 		
 		# add the selected channelName in the list of channels
 		channels.add(channelName)
-
-		return redirect(url_for("list_of_channels", user=name))
+		print("CHANNELS:")
+		print(channels)
+		return redirect(url_for("list_of_channels", channels=channels))
 	else:
 		return render_template("create_channel.html", user=name)
 

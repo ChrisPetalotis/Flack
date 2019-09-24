@@ -4,6 +4,13 @@
 	<!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta -->
     <meta charset="utf-8"/>
     <meta content="initial-scale=1, width=device-width" name="viewport"/>
+    <script>
+			document.addEventListener('DOMContentLoaded', () => {
+				document.querySelector("#user_nav").innerText = localStorage.getItem('displayName');
+				console.log("HEY THERE")
+				console.log(localStorage.getItem('displayName'))
+			});
+		</script>
 	{% block script %}{% endblock %}
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
 	<title>{% block title %}{% endblock %}</title>
@@ -17,7 +24,7 @@
 			</div>
 			<div class="collapse navbar-collapse" id="navbar">
                 <ul class="nav navbar-nav navbar-right">
-                	<li><a href="">{{ user }}</a></li>
+                	<li><a id="user_nav" href=""></a></li>
                 	<li><a href="{{ url_for('create_channel') }}">Create a Channel</a></li>
                 	<li><a href="{{ url_for('list_of_channels') }}">List of Channels</a></li>
                 </ul>
