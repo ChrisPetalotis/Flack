@@ -4,6 +4,23 @@
 	Flack - Talk to each other
 {% endblock %}
 
+{% block script %}
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		// disable the submit button when first loading the page
+		document.querySelector('[type=submit]').disabled = true;
+
+		document.querySelector('#displayName').onkeyup = () => {
+			// disable sumbit if user did not type anything and enable if there is something typed in the input field
+			if (document.querySelector('#displayName').value.length > 0)
+				document.querySelector('[type=submit]').disabled = false
+			else
+				document.querySelector('[type=submit]').disabled = true
+		}
+	})
+</script>
+{% endblock %}
+
 {% block main %}
 	<h1 class='text-center'>Flack</h1>
 	<h2 class='text-center'>Talk to each other</h2>

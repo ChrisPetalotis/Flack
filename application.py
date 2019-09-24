@@ -25,8 +25,9 @@ def index():
 
 		# get the display name the user typed in
 		displayName = request.form.get("displayName")
+		
 		# make sure the user typed in a name, otherwise reload page
-		if not displayName:
+		if not re.search('[a-zA-Z]', displayName):
 			return redirect(url_for("index"))
 		
 		# update name's value
