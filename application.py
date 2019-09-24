@@ -15,7 +15,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # list of channels that have been created
-channels = set()
+channels = {'gators':['yo','this is awesome','!']}
 # displayName that the user provided
 name = ""
 
@@ -57,8 +57,8 @@ def create_channel():
 		if channelName in channels:
 			return render_template("create_channel.html", message="There is already a channel with this name")
 		
-		# add the selected channelName in the list of channels
-		channels.add(channelName)
+		# add the selected channelName in the dict of channels with an empty list of messages for each new channel
+		channels[channelName] = []
 		print("CHANNELS:")
 		print(channels)
 		return redirect(url_for("list_of_channels", channels=channels))
@@ -74,3 +74,25 @@ def create_channel():
 @app.route("/list-of-channels", methods=["GET", "POST"])
 def list_of_channels():
 	return render_template("list_of_channels.html",channels=channels)
+
+@app.route("/messages", methods=["POST"])
+def messages():
+
+	""" Return the messages the selected channel """
+	
+	# Get the channel name that was sent with the request
+	channel = request.form.get('channel')
+
+	# Messages of the selected channel
+	messages = channels[channel]
+
+	# Check if the length of the list of messages is over 100
+	if len(messages) > 1:
+		# How larger is the length of the list than 100
+		excess = len(messages) - 1;
+		# Delete the excess amount of messages from the list
+		for i in range (0, excess):
+			del messages[0]
+
+
+	return jsonify({"messages": messages})

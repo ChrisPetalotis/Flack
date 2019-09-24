@@ -2,9 +2,9 @@
 
 {% block script %}
 <script>
-	if (!localStorage.getItem('channels'))
-		localStorage.setItem('channels', {})
-	console.log("STARTED")
+	// if (!localStorage.getItem('channels'))
+	// 	localStorage.setItem('channels', []);
+
 	document.addEventListener('DOMContentLoaded', () => {
 		// disable the submit button when first loading the page
 		document.querySelector('[type=submit]').disabled = true;
@@ -16,15 +16,15 @@
 			else
 				document.querySelector('[type=submit]').disabled = true
 		}
-		console.log("about to submit")
-		document.querySelector("#channelNameForm").onsubmit = () => {
-			console.log("FORM SUBMITTED")
-			// get the channel name the user submited
-			const channel = document.querySelector("#channelName").value;
-			// store this channel name is localStorage
-			localStorage.setItem('channels', localStorage.getItem("channels").append(channel))
-			console.log("items in localStorage: " + localStorage.getItem("channels"))
-		}
+		// console.log("about to submit")
+		// console.log("items in localStorage: " + localStorage.getItem("channels"))
+		// document.querySelector("#channelNameForm").onsubmit = () => {
+		// 	// get the channel name the user submited
+		// 	const channel = document.querySelector("#channelName").value;
+		// 	// store this channel name is localStorage
+		// 	channel_list = localStorage.getItem("channels")
+		// 	localStorage.setItem('channels', channel_list.push(channel))
+		// }
 	})
 </script>
 {% endblock %}

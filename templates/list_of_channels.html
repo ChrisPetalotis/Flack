@@ -4,14 +4,67 @@
 	List of Channels | Flack
 {% endblock %}
 
+{% block script %}
+	<script>
+		document.addEventListener('DOMContentLoaded', () => { 
+			// Select all the channels in the list
+			const options = document.querySelectorAll('.option');
+
+			// When a channel name is clicked
+			options.forEach(option => option.onclick = function() {
+
+				// Get the text of this option (channel)
+				const channelSelection = this.innerText;
+
+				// Initialize new request
+				const request = new XMLHttpRequest();
+
+				// Where to send this request
+				request.open('POST', '/messages');
+
+				// What happens when the request has been completed
+				request.onreadystatechange = () => {
+					if (request.readyState == 4 && request.status == 200) {
+						// Extract JSON data from request
+						const data = JSON.parse(request.responseText);
+
+						// Update the messages div
+						const messages = data.messages;
+						// Get each message from the response and display it on the screen
+						for (i = 0; i < messages.length; i++) {
+							const li = document.createElement('li');
+							li.innerHTML = messages[i];
+
+							document.querySelector('#messages').append(li);
+						}
+					}
+				}
+				// Add data to send with request - Specify what information should be included with the submission of the form
+				const data = new FormData();
+				data.append('channel', channelSelection)
+
+				// Send request
+				request.send(data);
+			
+				// Stop page from reloading
+				return false;
+			});
+
+		});
+	</script>
+{% endblock %}
+
 {% block main %}
 	<ul id="list_of_channels">
-		{% for channel in channels %}
-		<li name="channel">
+		{% for channel in channels.keys() %}
+		<li name="channel" value="{{ channel }}" class='option'>
 			<a href="">
 				{{ channel }}
 			</a>
 		</li>
 		{% endfor %}
+	</ul>
+
+	<ul id="messages">
 	</ul>
 {% endblock %}
