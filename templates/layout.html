@@ -6,9 +6,10 @@
     <meta content="initial-scale=1, width=device-width" name="viewport"/>
     <script>
 			document.addEventListener('DOMContentLoaded', () => {
-				document.querySelector("#user_nav").innerText = localStorage.getItem('displayName');
-				console.log("HEY THERE")
-				console.log(localStorage.getItem('displayName'))
+				if (document.querySelector('#user'))
+					document.querySelector("#user_nav").innerText = document.querySelector("#user").innerText
+				else 
+					document.querySelector("#user_nav").innerText = localStorage.getItem('displayName');
 			});
 		</script>
 	{% block script %}{% endblock %}

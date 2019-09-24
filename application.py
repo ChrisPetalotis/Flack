@@ -63,7 +63,7 @@ def create_channel():
 		print(channels)
 		return redirect(url_for("list_of_channels", channels=channels))
 	else:
-		return render_template("create_channel.html", user=name)
+		return render_template("create_channel.html")
 
 
 # @app.route("/get-started/select-channel")
@@ -73,4 +73,4 @@ def create_channel():
 
 @app.route("/list-of-channels", methods=["GET", "POST"])
 def list_of_channels():
-	return render_template("list_of_channels.html",channels=channels, user=name)
+	return render_template("list_of_channels.html",channels=channels)
