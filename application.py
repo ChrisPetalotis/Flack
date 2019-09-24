@@ -15,7 +15,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # list of channels that have been created
-channels = []
+channels = set()
 # displayName that the user provided
 name = ""
 
@@ -58,7 +58,7 @@ def create_channel():
 			return render_template("create_channel.html", message="There is already a channel with this name")
 		
 		# add the selected channelName in the list of channels
-		channels.append(channelName)
+		channels.add(channelName)
 
 		return redirect(url_for("list_of_channels", user=name))
 	else:

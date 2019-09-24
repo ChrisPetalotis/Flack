@@ -26,7 +26,7 @@
 {% block main %}
 	<form action=" {{ url_for('create_channel') }}" method="post" id="channelNameForm">
 		<div class="form-group">
-			<input type="input" name='channelName' value="" id="channelName" placeholder="Name of your channel"></input>
+			<input type="input" name='channelName' value="" id="channelName" placeholder="Name of your channel" autocomplete="off"></input>
 			<button type="submit">Create channel</button>
 		</div>
 	</form>
