@@ -1,0 +1,35 @@
+{% extends 'layout.html'%}
+
+{% block script %}
+<script>
+	if (!localStorage.getItem('channels'))
+		localStorage.setItem('channels', [])
+	console.log("STARTED")
+	document.addEventListener('DOMContentLoaded', () => {
+			console.log('loaded')
+		document.querySelector("#channelNameForm").onsubmit = () => {
+
+			// get the channel name the user submited
+			const channel = document.querySelector("#channelName").value;
+			// store this channel name is localStorage
+			localStorage.setItem('channels', localStorage.getItem("channels").append(channel))
+			console.log("items in localStorage: " + localStorage.getItem("channels"))
+		}
+	})
+</script>
+{% endblock %}
+
+{% block title %}
+	Create a Channel | Flack
+{% endblock%}
+
+{% block main %}
+	<form action=" {{ url_for('create_channel') }}" method="post" id="channelNameForm">
+		<div class="form-group">
+			<input type="input" name='channelName' value="" id="channelName" placeholder="Name of your channel"></input>
+			<button type="submit">Create channel</button>
+		</div>
+	</form>
+
+	{{ message }}
+{% endblock %}

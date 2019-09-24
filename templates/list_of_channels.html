@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+	List of Channels | Flack
+{% endblock %}
+
+{% block main %}
+	<ul id="list_of_channels">
+		{% for channel in channels %}
+		<li name="channel">
+			<a href="">
+				{{ channel }}
+			</a>
+		</li>
+		{% endfor %}
+	</ul>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+	Flack - Talk to each other
+{% endblock %}
+
+{% block main %}
+	<h1 class='text-center'>Flack</h1>
+	<h2 class='text-center'>Talk to each other</h2>
+
+	<p id="description" class='text-center'>A platform that helps you accomplish more by cooperating with other people
+	and joining your forces to achieve your goals</p>
+
+	<form method='post'>
+		<div class="form-group">
+			<label for='displayName' class="">Select your display name: </label>
+			<input type='text' value='' id="displayName" class="form-control" name='displayName' size=''>
+			<button type='submit' class='btn btn-primary'>New Me!</button>
+		</div>
+	</form>
+{% endblock %}
