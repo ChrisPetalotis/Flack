@@ -16,6 +16,10 @@
 				document.querySelector('[type=submit]').disabled = false
 			else
 				document.querySelector('[type=submit]').disabled = true
+
+			// if the user has not typed any characters, disable the prompt
+			if ((/[a-zA-z]/).test(document.querySelector('#displayName').value) == false)
+				document.querySelector('[type=submit]').disabled = true
 		}
 	})
 </script>

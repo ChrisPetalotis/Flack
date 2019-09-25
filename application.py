@@ -2,20 +2,20 @@ import os
 import re
 
 from flask import Flask, session, render_template, url_for, redirect, request, jsonify
-# from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit
 from flask_session import Session
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-# socketio = SocketIO(app)
-
-# Configure session to use filesystem (instead of signed cookies)
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
+socketio = SocketIO(app)
 
 # list of channels that have been created
-channels = {'gators':['yo','this is awesome','!']}
+channels = {}
+
+# remember which the current channel is in order to add the messages when received using socketio
+# + remember what channel the user was on previously to take the user back to that channel.
+cur_channel = ""
+
 # displayName that the user provided
 name = ""
 
@@ -25,10 +25,6 @@ def index():
 
 		# get the display name the user typed in
 		displayName = request.form.get("displayName")
-		
-		# make sure the user typed in a name, otherwise reload page
-		if not re.search('[a-zA-Z]', displayName):
-			return redirect(url_for("index"))
 		
 		# update name's value
 		global name
@@ -77,22 +73,35 @@ def list_of_channels():
 
 @app.route("/messages", methods=["POST"])
 def messages():
-
 	""" Return the messages the selected channel """
 	
 	# Get the channel name that was sent with the request
 	channel = request.form.get('channel')
 
+	global cur_channel
+	cur_channel = channel
+
 	# Messages of the selected channel
 	messages = channels[channel]
-
 	# Check if the length of the list of messages is over 100
-	if len(messages) > 1:
+	if len(messages) > 100:
 		# How larger is the length of the list than 100
-		excess = len(messages) - 1;
+		excess = len(messages) - 100;
 		# Delete the excess amount of messages from the list
 		for i in range (0, excess):
 			del messages[0]
 
 
 	return jsonify({"messages": messages})
+
+@socketio.on('send message')
+def send(data):
+	# Get the message that was sent
+	message = data['message']
+
+	# Get the messages of the current channel
+	messages = channels[cur_channel]
+	# Add the new message in the list of messages
+	messages.append(message)
+	# Emit the new message to all the users that are on this channel at the moment
+	emit('announce message', {'message': message}, broadcast=True)
