@@ -16,9 +16,6 @@ USERS = {}
 # list of channels
 CHANNELS = {}
 
-# remember which the current channel is in order to add the messages when received using socketio
-CUR_CHANNEL = ""
-
 @app.route("/")
 def index():
 	return render_template("homepage.html")
@@ -26,15 +23,14 @@ def index():
 @socketio.on('add username')
 def add_username(data):
 	username = data['username']
-	print('ADDING USERNAME')
-	if username in USERS: 
-		print('Username already exists')
-		emit('existing username')
-		return False
-	else:
-		USERS[username] = request.sid
-		print('USERNAME ADDED')
-		print(USERS)
+	# if username in USERS: 
+	# 	print('Username already exists')
+	# 	emit('existing username')
+	# 	return False
+	# else:
+	global CUR_CHANNEL
+	CUR_CHANNEL = ''
+	USERS[username] = request.sid
 
 
 @socketio.on('create channel')
@@ -49,6 +45,8 @@ def create_channel(data):
 	# add channel_name in CHANNELS with an empty list of messages for each new channel
 	CHANNELS[channel_name] = deque([], maxlen=100)
 	emit('new channel', {'channel_name': channel_name}, broadcast=True)
+	print("CHANNELS: ")
+	print(CHANNELS)
 
 @socketio.on('get channels')
 def get_channels():
@@ -60,15 +58,14 @@ def send(data):
 	# Get the message that was sent
 	message = data['message']
 	# Get the messages of the current channel
-	messages = CHANNELS[CUR_CHANNEL]
+	messages = CHANNELS[data['channel']]
 	# Add the new message in the list of messages
 	messages.append(message)
 	# Emit the new message to all the USERS that are on this channel at the moment
-	emit('new message', {'message': message}, broadcast=True)
+	emit('new message', data, broadcast=True)
+
 
 @socketio.on('get messages')
 def get_messages(data):
-	global CUR_CHANNEL
-	CUR_CHANNEL = data['channel_name']
-	messages = CHANNELS[CUR_CHANNEL]
-	emit('show messages', list(messages))
+	messages = CHANNELS[data['channel']]
+	emit('show messages', {'message': list(messages), 'channel': data['channel']})

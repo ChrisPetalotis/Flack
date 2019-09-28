@@ -12,14 +12,6 @@ const start = username => {
 
 	socket.on('connect', () => {
 		socket.emit('add username', {'username': username});
-		
-		// CAN'T MAKE IT WORK - LEAVE IT FOR LATER - it prompts but it does not store username in python dict
-		socket.on('existing username', () => {
-			console.log('this username already exists')
-			document.querySelector('#modal_box').style.display = 'block'
-			document.querySelector('.modal_header > h2').innerText = 'This username already exists'	
-			document.querySelector('#select_username').innerText = 'Please select another username for your account'
-		});
 
 		// Update username on navigation bar
 		document.querySelector("#user_nav").innerText = localStorage.getItem('username');
@@ -28,6 +20,10 @@ const start = username => {
 
 		socket.on('new channel', data => {
 			show_channel(data['channel_name'], socket);
+			// Make the newly created channel the one in focus and clear message view
+			localStorage.setItem('channel_name', data['channel_name'])
+			change_messages_title(localStorage.getItem('channel_name'));
+			document.querySelector('#message_list').innerHTML = '';
 		});
 		
 		socket.on('existing channel', () => {
@@ -42,57 +38,68 @@ const start = username => {
 
 			for (let channel of data)
 				show_channel(channel, socket);
+			
+			// go back to the last visited channel - Do the messages show up?
+			// if (localStorage.getItem('channel_name'))
+			// 	change_messages_title(localStorage.getItem('channel_name'));
+			// 	emit('get messages', {'channel': localStorage.getItem('channel_name')});
 		});
 
 		send_message(socket);
 
 		socket.on('new message', data => {
-			show_message(data['message']);
+			show_message(data);
 		});
-
-		socket.emit('get messages', {'channel_name': localStorage.getItem('channel_name')});
 
 		socket.on('show messages', data => {
 			// clear message list
 			document.querySelector('#message_list').innerHTML = '';
+			// change_messages_title(localStorage.getItem('channel_name'));
 			// set the title of the channel to the channel name stored in local storage
-			document.querySelector('#channel_title').innerText = localStorage.getItem('channel_name');
-			for (let message of data)
-				show_message(message, socket);			
+			for (let message of data['message'])
+				show_message(data, socket);			
 		});
 	});
 }
 
 // GET USERNAME
 const get_username = () => {
-	document.querySelector('#submit_modal').disabled = true;
+	let username = localStorage.getItem('username');
 
-	document.querySelector('#username_text').onkeyup = () => {
-		// disable sumbit if user did not type anything and enable if there is something typed in the input field
-		if (document.querySelector('#username_text').value.length > 0)
-			document.querySelector('#submit_modal').disabled = false
-		else
-			document.querySelector('#submit_modal').disabled = true
+	if (!username) {
+		document.querySelector('#submit_modal').disabled = true;
 
-		// if the user has not typed any characters, disable the prompt
-		if ((/[a-zA-z_!?-]/).test(document.querySelector('#username_text').value) == false)
-			document.querySelector('#submit_modal').disabled = true
-	}
+		document.querySelector('#username_text').onkeyup = () => {
+			// disable sumbit if user did not type anything and enable if there is something typed in the input field
+			if (document.querySelector('#username_text').value.length > 0)
+				document.querySelector('#submit_modal').disabled = false
+			else
+				document.querySelector('#submit_modal').disabled = true
 
+			// if the user has not typed any characters, disable the prompt
+			if ((/[a-zA-z_!?-]/).test(document.querySelector('#username_text').value) == false)
+				document.querySelector('#submit_modal').disabled = true
+		}
+		let username = localStorage.setItem('channel_name', '');
 
-	document.querySelector('#username_form').onsubmit = (e) => {
-		e.preventDefault();
+		document.querySelector('#username_form').onsubmit = (e) => {
+			e.preventDefault();
 
-		// check if there is a username stored in localStorage
-		if (!localStorage.getItem('username'))
-			localStorage.setItem('username','')
+			// check if there is a username stored in localStorage
+			if (!localStorage.getItem('username'))
+				localStorage.setItem('username','')
 
-		// get the username the user has typed in the prompt
-		let username = document.querySelector('#username_text').value;
-		username = username.trim();
-		// save username in localStorage
-		localStorage.setItem('username', username)
+			// get the username the user has typed in the prompt
+			username = document.querySelector('#username_text').value;
+			username = username.trim();
+			// save username in localStorage
+			localStorage.setItem('username', username)
 
+			document.querySelector('#modal_box').style.display = 'none'	
+
+			start(username);
+		}
+	} else { 
 		document.querySelector('#modal_box').style.display = 'none'	
 
 		start(username);
@@ -147,11 +154,16 @@ const show_channel = (channel, socket) => {
 	li.onclick = () => {
 		// Make the clicked channel the one stored in local storage
 		localStorage.setItem('channel_name', channel);
-
-		socket.emit('get messages', {'channel_name': channel});
+		change_messages_title(channel);
+		socket.emit('get messages', {'channel': channel});
 	}
 
 	document.querySelector('#channel_list').append(li);
+}
+
+const change_messages_title = title => {
+	let message_title = document.querySelector('#channel_title');
+	message_title.innerText = title;
 }
 
 // SEND MESSAGE
@@ -178,8 +190,8 @@ const send_message = socket => {
 		let user = localStorage.getItem('username');
 		let time = get_time();
 		message = `${user}: ${message} (${time})`
-		// message = `${user}: ${message} (${time})`
-		socket.emit('send message', {'message': message});
+		// remember which channel the message was sent in
+		socket.emit('send message', {'message': message, 'channel': localStorage.getItem('channel_name')});
 
 		// Clear input field
 		document.querySelector('#new_message').value = ''
@@ -187,10 +199,13 @@ const send_message = socket => {
 }
 
 // SHOW MESSAGE
-const show_message = (message) => {
-	const li = document.createElement('li');
-	li.innerHTML = message;
-	document.querySelector('#message_list').append(li);
+const show_message = (data) => {
+	// if the channel on focus is the one I sent the message in, show the message on the list
+	if (localStorage.getItem('channel_name') == data['channel']) {
+		const li = document.createElement('li');
+		li.innerHTML = data['message'];
+		document.querySelector('#message_list').append(li);
+	}
 }
 
 const get_time = () => {
@@ -206,3 +221,32 @@ const get_time = () => {
 
 	return time;
 }
+
+
+
+// Only when changing user 
+		//Prompts user to select a different username, because the previous one already exists
+		// socket.on('existing username', () => {
+		// 	console.log('this username already exists')
+		// 	document.querySelector('#modal_box').style.display = 'block'
+		// 	document.querySelector('.modal_header > h2').innerText = 'This username already exists'	
+		// 	document.querySelector('#select_username').innerText = 'Please select another username for your account'
+			
+		// 	document.querySelector('#username_form').onsubmit = (e) => {
+		// 		e.preventDefault();
+
+		// 		// check if there is a username stored in localStorage
+		// 		if (!localStorage.getItem('username'))
+		// 			localStorage.setItem('username','')
+
+		// 		// get the username the user has typed in the prompt
+		// 		let username = document.querySelector('#username_text').value;
+		// 		username = username.trim();
+		// 		// save username in localStorage
+		// 		localStorage.setItem('username', username)
+
+		// 		socket.emit('add username', {'username': username});	
+
+		// 		document.querySelector('#modal_box').style.display = 'none'	
+		// 	}
+		// });
